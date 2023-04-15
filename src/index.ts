@@ -92,6 +92,39 @@ async function entrypoint() {
 
       const priceElement = document.createElement("div");
       priceElement.classList.add("money");
+      priceElement.classList.add("reference-price");
+      priceElement.setAttribute("currency", currencyInfo.currencyLabel);
+      priceElement.textContent = `${
+        currencyInfo.currencyLabel
+      }: (~${localPrice.toFixed(2)} JPY) ${price}`;
+      const countries = currencyInfo.countries
+        .map(country => country.countryLabel)
+        .join("\n");
+      priceElement.setAttribute("title", countries);
+      originalPriceContainer.appendChild(priceElement);
+    }
+  }
+
+  for (const product of products) {
+    product.prices.sort((a, b) => a.localPrice - b.localPrice);
+
+    originalItems[product.index]
+      .querySelectorAll(".money.reference-price")
+      .forEach(e => e.remove());
+
+    const originalPriceContainer = originalItems[product.index].querySelector(
+      PRICE_CONTAINER_SELECTOR,
+    );
+    if (!originalPriceContainer) {
+      console.error("Could not find original price container", product.index);
+      continue;
+    }
+
+    for (const priceInfo of product.prices) {
+      const { price, localPrice, currencyInfo } = priceInfo;
+      const priceElement = document.createElement("div");
+      priceElement.classList.add("money");
+      priceElement.classList.add("reference-price");
       priceElement.setAttribute("currency", currencyInfo.currencyLabel);
       priceElement.textContent = `${
         currencyInfo.currencyLabel

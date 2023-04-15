@@ -11,6 +11,7 @@ interface CurrencyInfo {
 
 interface PriceInfo {
   price: string;
+  localPrice: number;
   currencyInfo: CurrencyInfo;
 }
 

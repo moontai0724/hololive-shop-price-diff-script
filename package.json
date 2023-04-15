@@ -24,6 +24,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^17.6.1",
+    "@types/parsecurrency": "^1.0.0",
     "@types/tampermonkey": "^4.0.10",
     "@typescript-eslint/eslint-plugin": "^5.23.0",
     "@typescript-eslint/parser": "^5.23.0",
@@ -40,5 +41,8 @@
     "typescript": "^5.0.4",
     "webpack": "^5.72.1",
     "webpack-cli": "^5.0.1"
+  },
+  "dependencies": {
+    "parsecurrency": "^1.1.0"
   }
 }

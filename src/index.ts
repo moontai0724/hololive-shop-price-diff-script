@@ -1,3 +1,5 @@
+import { default as parsecurrency } from "parsecurrency";
+
 entrypoint();
 
 const ITEMS_SELECTOR =
@@ -61,8 +63,18 @@ async function entrypoint() {
         continue;
       }
 
+      const currency = parsecurrency(`${currencyInfo.currencyLabel} ${price}`);
+      const priceNumber = currency?.value ?? 0;
+
+      const exchangeRate = await getExchangeRate(
+        currencyInfo.currencyLabel,
+        "JPY",
+      );
+      const localPrice = priceNumber * exchangeRate;
+
       product.prices.push({
         price,
+        localPrice,
         currencyInfo,
       });
 
@@ -81,7 +93,13 @@ async function entrypoint() {
       const priceElement = document.createElement("div");
       priceElement.classList.add("money");
       priceElement.setAttribute("currency", currencyInfo.currencyLabel);
-      priceElement.textContent = `${currencyInfo.currencyLabel}: ${price}`;
+      priceElement.textContent = `${
+        currencyInfo.currencyLabel
+      }: (~${localPrice.toFixed(2)} JPY) ${price}`;
+      const countries = currencyInfo.countries
+        .map(country => country.countryLabel)
+        .join("\n");
+      priceElement.setAttribute("title", countries);
       originalPriceContainer.appendChild(priceElement);
     }
   }
@@ -124,6 +142,51 @@ async function getProductInfo(countryCode: string): Promise<string> {
   });
 }
 
+async function getExchangeRate(
+  fromCurrency: string,
+  toCurrency: string,
+): Promise<number> {
+  if (fromCurrency === toCurrency) return 1;
+
+  const cacheKey = `exchangeRate-${fromCurrency}-${toCurrency}`;
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached) {
+    return parseFloat(cached);
+  }
+
+  const url = `https://www.google.com/finance/quote/${fromCurrency}-${toCurrency}`;
+
+  const html = await new Promise<string>((resolve, reject) => {
+    GM_xmlhttpRequest({
+      method: "GET",
+      url,
+      anonymous: true,
+      onload: response => {
+        resolve(response.responseText);
+      },
+      onerror: error => {
+        reject(error);
+      },
+    });
+  });
+
+  const result = html.match(/data-last-price="(.+?)"/);
+  if (!result || result.length < 2) {
+    console.error(
+      "Could not find exchange rate",
+      fromCurrency,
+      toCurrency,
+      html,
+    );
+    return 0;
+  }
+
+  const rate = parseFloat(result[1]);
+  sessionStorage.setItem(cacheKey, rate.toString());
+
+  return rate;
+}
+
 function getCurrencyInfos(): CurrencyInfo[] {
   const rawCountries = document.querySelectorAll("#country_code option");
   const countries = Array.from(rawCountries)
@@ -138,7 +201,7 @@ function getCurrencyInfos(): CurrencyInfo[] {
       const currencyInfo: Country = {
         countryCode: (element as HTMLOptionElement).value,
         countryLabel: label,
-        currencyLabel: currency,
+        currencyLabel: currency.substring(0, 3),
       };
 
       return currencyInfo;

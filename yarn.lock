@@ -407,6 +407,11 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.1.tgz#d3357479a0fdfdd5907fe67e17e0a85c906e1301"
   integrity sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==
 
+"@types/parsecurrency@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/parsecurrency/-/parsecurrency-1.0.0.tgz#fd418159daf6c5093e5bf81f7a6efa525eec7b14"
+  integrity sha512-gDp3FzJAgN6n2cuPmYt9a9kboPNbq+q3YlB9C/Cc3SQeupAqim2r8Ivqddxy3IAPfha5PNjiDpr6O7FzB7QHnA==
+
 "@types/semver@^7.3.12":
   version "7.3.13"
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.13.tgz#da4bfd73f49bd541d28920ab0e2bf0ee80f71c91"
@@ -2256,6 +2261,11 @@ parse-json@^5.0.0:
     error-ex "^1.3.1"
     json-parse-even-better-errors "^2.3.0"
     lines-and-columns "^1.1.6"
+
+parsecurrency@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/parsecurrency/-/parsecurrency-1.1.0.tgz#5d109a6b31adfbc1b8b4f051d501eb057e31ae9e"
+  integrity sha512-2rEK6eBOL0v6eqgqB9erqXYfdZ8cFP9pv65ZQE53DdAbbTNbqHCeArj3LzdvghpQXdG8BxBMPCS+cNiRIQRcxg==
 
 path-exists@^4.0.0:
   version "4.0.0"

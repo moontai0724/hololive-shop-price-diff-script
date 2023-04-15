@@ -5,7 +5,7 @@
 // @description  A script to quickly diff the price in different currency in Hololive shop.
 // @author       moontai0724
 // @match        https://shop.hololivepro.com/products/*
-// @grant        none
+// @grant        GM_xmlhttpRequest
 // @supportURL   https://github.com/moontai0724/hololive-shop-price-diff-script/issues
 // @license      MIT
 // ==/UserScript==

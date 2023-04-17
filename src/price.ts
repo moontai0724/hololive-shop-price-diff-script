@@ -17,11 +17,28 @@ export async function getPrice(
   currency: Currency,
   localCurrency = "JPY",
 ): Promise<Price[]> {
+  const items = await getItems(currency);
+  const prices: Price[] = [];
+
+  for (const item of items) {
+    const price = await getPriceOfItem(item, currency, localCurrency);
+    prices.push(price);
+  }
+
+  cachePrices(currency, prices);
+
+  return prices;
+}
+
+async function getItems(currency: Currency): Promise<BasicItem[]> {
+  const cached = getCachedPrice(currency);
+  if (cached) return cached.items;
+
   const document = await getProductPageInCountry(
     currency.countries[0].countryCode,
   );
   const itemElements = Array.from(document.querySelectorAll(ITEMS_SELECTOR));
-  const items: Price[] = [];
+  const items: BasicItem[] = [];
 
   let index = 0;
   for (const item of itemElements) {
@@ -38,26 +55,72 @@ export async function getPrice(
       throw new Error("Could not find price");
     }
 
-    const parser = parsecurrency(`${currency.currencyLabel} ${priceLabel}`);
-    const price = parser?.value ?? 0;
-
-    const exchangeRate = await getExchangeRate(
-      currency.currencyLabel,
-      localCurrency,
-    );
-    const localPrice = price * exchangeRate;
-
     items.push({
       index: index++,
       name: name.textContent ?? "",
       priceLabel,
-      price,
-      localPrice,
-      currency,
     });
   }
 
   return items;
+}
+
+async function getPriceOfItem(
+  item: BasicItem,
+  currency: Currency,
+  localCurrency = "JPY",
+): Promise<Price> {
+  const parser = parsecurrency(`${currency.currencyLabel} ${item.priceLabel}`);
+  const price = parser?.value ?? 0;
+
+  const exchangeRate = await getExchangeRate(
+    currency.currencyLabel,
+    localCurrency,
+  );
+  const localPrice = price * exchangeRate;
+
+  return {
+    index: item.index,
+    name: item.name,
+    priceLabel: item.priceLabel,
+    price,
+    localPrice,
+    currency,
+  };
+}
+
+function getCacheKey(currency: Currency): string {
+  return `price-cache-${location.pathname}-${currency.currencyLabel}`;
+}
+
+function getCachedPrice(currency: Currency): CachedPrice | null {
+  const key = getCacheKey(currency);
+  const cachedPrice = GM_getValue(key, null) as CachedPrice | null;
+
+  if (
+    cachedPrice &&
+    cachedPrice.timestamp < Date.now() - 30 * 24 * 60 * 60 * 1000
+  ) {
+    GM_deleteValue(key);
+    return null;
+  }
+
+  return cachedPrice;
+}
+
+function cachePrices(currency: Currency, prices: Price[]) {
+  const key = getCacheKey(currency);
+  const cachedPrice: CachedPrice = {
+    timestamp: Date.now(),
+    location: location.pathname,
+    currencyLabel: currency.currencyLabel,
+    items: prices.map(price => ({
+      index: price.index,
+      name: price.name,
+      priceLabel: price.priceLabel,
+    })),
+  };
+  GM_setValue(key, cachedPrice);
 }
 
 /**
@@ -93,4 +156,17 @@ export interface Price {
   price: number;
   localPrice: number;
   currency: Currency;
+}
+
+interface CachedPrice {
+  timestamp: number;
+  location: string; // location.pathname
+  currencyLabel: string;
+  items: BasicItem[];
+}
+
+interface BasicItem {
+  index: number;
+  name: string;
+  priceLabel: string;
 }

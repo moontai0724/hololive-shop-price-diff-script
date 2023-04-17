@@ -1,4 +1,5 @@
 import { default as parsecurrency } from "parsecurrency";
+import { getExchangeRate } from "./exchange-rate";
 
 entrypoint();
 
@@ -173,51 +174,6 @@ async function getProductInfo(countryCode: string): Promise<string> {
       },
     });
   });
-}
-
-async function getExchangeRate(
-  fromCurrency: string,
-  toCurrency: string,
-): Promise<number> {
-  if (fromCurrency === toCurrency) return 1;
-
-  const cacheKey = `exchangeRate-${fromCurrency}-${toCurrency}`;
-  const cached = sessionStorage.getItem(cacheKey);
-  if (cached) {
-    return parseFloat(cached);
-  }
-
-  const url = `https://www.google.com/finance/quote/${fromCurrency}-${toCurrency}`;
-
-  const html = await new Promise<string>((resolve, reject) => {
-    GM_xmlhttpRequest({
-      method: "GET",
-      url,
-      anonymous: true,
-      onload: response => {
-        resolve(response.responseText);
-      },
-      onerror: error => {
-        reject(error);
-      },
-    });
-  });
-
-  const result = html.match(/data-last-price="(.+?)"/);
-  if (!result || result.length < 2) {
-    console.error(
-      "Could not find exchange rate",
-      fromCurrency,
-      toCurrency,
-      html,
-    );
-    return 0;
-  }
-
-  const rate = parseFloat(result[1]);
-  sessionStorage.setItem(cacheKey, rate.toString());
-
-  return rate;
 }
 
 function getCurrencyInfos(): CurrencyInfo[] {

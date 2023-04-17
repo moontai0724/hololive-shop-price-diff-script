@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hololive Shop Price Differ
 // @namespace    https://github.com/moontai0724
-// @version      1.2.2
+// @version      1.2.3
 // @description  A script to quickly diff the price in different currency in Hololive shop.
 // @author       moontai0724
 // @match        https://shop.hololivepro.com/products/*

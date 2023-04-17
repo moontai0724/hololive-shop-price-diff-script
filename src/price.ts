@@ -94,23 +94,18 @@ function getCacheKey(currency: Currency): string {
 }
 
 function getCachedPrice(currency: Currency): CachedPrice | null {
+  clearExpiredCache();
   const key = getCacheKey(currency);
-  const cachedPrice = GM_getValue(key, null) as CachedPrice | null;
+  const cached = GM_getValue("price-cache", {} as Record<string, CachedPrice>);
+  const cachedPrice = cached[key];
 
-  if (
-    cachedPrice &&
-    cachedPrice.timestamp < Date.now() - 30 * 24 * 60 * 60 * 1000
-  ) {
-    GM_deleteValue(key);
-    return null;
-  }
-
-  return cachedPrice;
+  return cachedPrice ?? null;
 }
 
 function cachePrices(currency: Currency, prices: Price[]) {
   const key = getCacheKey(currency);
-  const cachedPrice: CachedPrice = {
+  const cached = GM_getValue("price-cache", {} as Record<string, CachedPrice>);
+  cached[key] = {
     timestamp: Date.now(),
     location: location.pathname,
     currencyLabel: currency.currencyLabel,
@@ -120,7 +115,18 @@ function cachePrices(currency: Currency, prices: Price[]) {
       priceLabel: price.priceLabel,
     })),
   };
-  GM_setValue(key, cachedPrice);
+  GM_setValue("price-cache", cached);
+}
+
+function clearExpiredCache(): void {
+  const cached = GM_getValue("price-cache", {} as Record<string, CachedPrice>);
+  const keys = Object.keys(cached);
+  for (const key of keys) {
+    const cachedPrice = cached[key];
+    if (cachedPrice.timestamp < Date.now() - 30 * 24 * 60 * 60 * 1000) {
+      GM_deleteValue(key);
+    }
+  }
 }
 
 /**

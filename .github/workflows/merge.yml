@@ -26,6 +26,10 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Add additional files
+        run: |
+          mv README.md dist/README.md
+
       - name: Publish
         uses: s0/git-publish-subdir-action@develop
         env:

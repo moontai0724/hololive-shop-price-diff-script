@@ -15,7 +15,7 @@ export function getItems(): Item[] {
   }));
 }
 
-export function setPrice(price: Price) {
+export function setPrice(price: Price, final = false) {
   const items = document.querySelectorAll(ITEMS_SELECTOR);
   const item = items[price.index];
   if (!item) {
@@ -31,6 +31,7 @@ export function setPrice(price: Price) {
 
   const priceElement = document.createElement("div");
   priceElement.style.fontSize = "75%";
+  priceElement.style.opacity = final ? "0.8" : "0.5";
   priceElement.classList.add("money");
   priceElement.classList.add("reference-price");
   priceElement.setAttribute("currency", price.currency.currencyLabel);

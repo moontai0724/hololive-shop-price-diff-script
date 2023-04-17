@@ -26,7 +26,7 @@ async function entrypoint() {
   for (const item of items) {
     const prices = item.prices.sort((a, b) => a.localPrice - b.localPrice);
     for (const price of prices) {
-      setPrice(price);
+      setPrice(price, true);
     }
   }
 }

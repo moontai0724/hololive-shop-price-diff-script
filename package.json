@@ -11,7 +11,7 @@
   "lint-staged": {
     "src/**/*.{js,vue}": "eslint --cache",
     "src/**/*.{css,vue}": "stylelint",
-    "src/**/*.**": "prettier --check --ignore-unknown ./src"
+    "src/**/*.**": "prettier --check --ignore-unknown"
   },
   "scripts": {
     "lint": "yarn lint:eslint && yarn lint:prettier",

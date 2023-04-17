@@ -1,18 +1,9 @@
-interface Country {
-  countryCode: string;
-  countryLabel: string;
-  currencyLabel: string;
-}
-
-interface CurrencyInfo {
-  currencyLabel: string;
-  countries: Array<Country>;
-}
+import { Currency } from "./currency";
 
 interface PriceInfo {
   price: string;
   localPrice: number;
-  currencyInfo: CurrencyInfo;
+  currencyInfo: Currency;
 }
 
 interface Product {

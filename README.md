@@ -10,3 +10,18 @@ When you hover over a currency, you can see which country it belongs to.
 
 ![Hover Demo](https://user-images.githubusercontent.com/25532663/232450895-813b6441-127c-41a0-ac6d-69d2d54ccb87.png)
 
+## How to purchase with specific currency?
+
+The Hololive shop system automatically changes the currency based on the address you selected.
+
+![system automatically changes the currency](https://user-images.githubusercontent.com/25532663/232466086-4853b108-0a9e-4cf2-a799-f0eb02792eb6.png)
+
+To ensure that you're using the correct currency, you should change it before checking out. (on below page)
+
+![checkout page](https://user-images.githubusercontent.com/25532663/232466758-13e9bf69-d2d7-4c80-aa40-29ac44381b44.png)
+
+When you reach the last page of the checkout process, which prompts you to select your purchase method, go to any page on the shop website. You will find a dropdown selection that allows you to choose your currency.
+
+![dropdown selector](https://user-images.githubusercontent.com/25532663/232465792-5de75ff3-1add-4ab7-8640-c50692dee812.png)
+
+Select the appropriate currency and then reload the purchase method selection page. This should display the correct currency for your purchase.

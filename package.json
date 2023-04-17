@@ -1,5 +1,5 @@
 {
-  "name": "hololive-shop-price-diff-script",
+  "name": "hololive-shop-price-comparison-tool",
   "version": "1.2.3",
   "description": "A script to quickly diff the price in different currency in Hololive shop.",
   "private": true,

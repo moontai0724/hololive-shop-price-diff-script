@@ -1,8 +1,3 @@
-export interface Currency {
-  currencyLabel: string;
-  countries: Country[];
-}
-
 /**
  * Get currencies and countries use same currencies from selectable options
  * @returns Array of currencies and countries use same currencies
@@ -24,12 +19,6 @@ export function getCurrencies(): Currency[] {
   }
 
   return currencies;
-}
-
-export interface Country {
-  countryCode: string;
-  countryLabel: string;
-  currencyLabel: string;
 }
 
 /**
@@ -63,4 +52,15 @@ function getCountries(): Country[] {
     .filter(Boolean) as Country[];
 
   return countries;
+}
+
+export interface Currency {
+  currencyLabel: string;
+  countries: Country[];
+}
+
+export interface Country {
+  countryCode: string;
+  countryLabel: string;
+  currencyLabel: string;
 }

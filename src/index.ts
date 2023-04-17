@@ -1,142 +1,32 @@
-import { default as parsecurrency } from "parsecurrency";
-import { getExchangeRate } from "./exchange-rate";
 import { getCurrencies } from "./currency";
-import { Product } from "./types";
+import { getPrice } from "./price";
+import { getItems, setPrice } from "./product";
 
 entrypoint();
-
-const ITEMS_SELECTOR =
-  ".ProductOption__container--variants .ProductOption__item--select";
-const NAME_SELECTOR = ".ProductOption__label--product";
-const PRICE_CONTAINER_SELECTOR = ".ProductOption__label--price";
 
 async function entrypoint() {
   await waitForElement("form[action='/localization']");
 
-  const products: Product[] = [];
-  const originalItems = document.querySelectorAll(ITEMS_SELECTOR);
-  originalItems.forEach((item, index) => {
-    const name = item.querySelector(NAME_SELECTOR);
-    if (!name) {
-      console.error("Could not find name for item", index, item);
-    }
+  const items = getItems();
 
-    products.push({
-      index,
-      name: name?.textContent ?? "",
-      prices: [],
-    });
-  });
-
-  const currencyInfos = getCurrencies();
-  for (const currencyInfo of currencyInfos) {
-    const productInfo = await getProductInfo(
-      currencyInfo.countries[0].countryCode,
-    );
-
-    const html = new DOMParser().parseFromString(productInfo, "text/html");
-    const itemElements = html.querySelectorAll(ITEMS_SELECTOR);
-    if (products.length !== itemElements.length) {
-      console.error(
-        "Items does not match",
-        currencyInfo,
-        products,
-        itemElements,
-      );
-      continue;
-    }
-
-    for (const product of products) {
-      const itemElement = itemElements[product.index];
-      const priceContainer = itemElement.querySelector(
-        PRICE_CONTAINER_SELECTOR,
-      );
-      if (!priceContainer) {
-        console.error(
-          "Could not find price container",
-          currencyInfo,
-          product.index,
-        );
-        continue;
+  const currencies = getCurrencies();
+  for (const currency of currencies) {
+    const prices = await getPrice(currency);
+    for (const price of prices) {
+      setPrice(price);
+      const item = items[price.index];
+      if (item.name !== price.name) {
+        console.warn("Item name is different", item, price);
       }
-
-      const price = priceContainer.textContent;
-      if (!price) {
-        console.error("Could not find price", product.index);
-        continue;
-      }
-
-      const currency = parsecurrency(`${currencyInfo.currencyLabel} ${price}`);
-      const priceNumber = currency?.value ?? 0;
-
-      const exchangeRate = await getExchangeRate(
-        currencyInfo.currencyLabel,
-        "JPY",
-      );
-      const localPrice = priceNumber * exchangeRate;
-
-      product.prices.push({
-        price,
-        localPrice,
-        currencyInfo,
-      });
-
-      const originalPriceContainer = originalItems[product.index].querySelector(
-        PRICE_CONTAINER_SELECTOR,
-      );
-      if (!originalPriceContainer) {
-        console.error(
-          "Could not find original price container",
-          currencyInfo,
-          product.index,
-        );
-        continue;
-      }
-
-      const priceElement = document.createElement("div");
-      priceElement.classList.add("money");
-      priceElement.classList.add("reference-price");
-      priceElement.setAttribute("currency", currencyInfo.currencyLabel);
-      priceElement.textContent = `${
-        currencyInfo.currencyLabel
-      }: (~${localPrice.toFixed(2)} JPY) ${price}`;
-      const countries = currencyInfo.countries
-        .map(country => country.countryLabel)
-        .join("\n");
-      priceElement.setAttribute("title", countries);
-      originalPriceContainer.appendChild(priceElement);
+      items[price.index].prices.push(price);
     }
   }
 
-  for (const product of products) {
-    product.prices.sort((a, b) => a.localPrice - b.localPrice);
-
-    originalItems[product.index]
-      .querySelectorAll(".money.reference-price")
-      .forEach(e => e.remove());
-
-    const originalPriceContainer = originalItems[product.index].querySelector(
-      PRICE_CONTAINER_SELECTOR,
-    );
-    if (!originalPriceContainer) {
-      console.error("Could not find original price container", product.index);
-      continue;
-    }
-
-    for (const priceInfo of product.prices) {
-      const { price, localPrice, currencyInfo } = priceInfo;
-      const priceElement = document.createElement("div");
-      priceElement.classList.add("money");
-      priceElement.classList.add("reference-price");
-      priceElement.setAttribute("currency", currencyInfo.currencyLabel);
-      priceElement.textContent = `${
-        currencyInfo.currencyLabel
-      }: (~${localPrice.toFixed(2)} JPY) ${price}`;
-      const countries = currencyInfo.countries
-        .map(country => country.countryLabel)
-        .join("\n");
-      priceElement.setAttribute("title", countries);
-      originalPriceContainer.appendChild(priceElement);
+  document.querySelectorAll(".reference-price").forEach(e => e.remove());
+  for (const item of items) {
+    const prices = item.prices.sort((a, b) => a.localPrice - b.localPrice);
+    for (const price of prices) {
+      setPrice(price);
     }
   }
 }
@@ -157,23 +47,6 @@ function waitForElement(selector: string): Promise<Element> {
     observer.observe(document.documentElement, {
       childList: true,
       subtree: true,
-    });
-  });
-}
-
-async function getProductInfo(countryCode: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    GM_xmlhttpRequest({
-      method: "GET",
-      url: location.href,
-      cookie: `localization=${countryCode}`,
-      anonymous: true,
-      onload: response => {
-        resolve(response.responseText);
-      },
-      onerror: error => {
-        reject(error);
-      },
     });
   });
 }

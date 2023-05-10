@@ -1,9 +1,9 @@
-name: Build and Publish
+name: Continuous Delivery
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "*"
 
 jobs:
   build-and-publish:
@@ -37,3 +37,13 @@ jobs:
           BRANCH: dist
           FOLDER: dist
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Continuous Delivery to GitHub Releases
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            LICENSE
+            README.md
+            dist/*

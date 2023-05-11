@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hololive Shop Price Comparison Tool
 // @namespace    https://github.com/moontai0724
-// @version      '1.2.4'
+// @version      '1.2.5'
 // @description  This tool helps you compare prices in different currencies on the Hololive Shop and convert them to Japanese Yen.
 // @author       moontai0724
 // @match        https://shop.hololivepro.com/products/*
